@@ -1,8 +1,8 @@
 # Hash-Function
 Hash Function Price List
-Pseudocode for Code:
 
 Hash Function Pseudocode
+
 Data Storage Functions
 FUNCTION hash_function(item_name)
     IF item_name length is 1 THEN
