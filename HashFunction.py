@@ -1,85 +1,102 @@
-class PriceHashTable:
-    def __init__(self, size=128):
-        self.size = size
-        self.table = [[] for _ in range(size)]
+import json
+import os
+
+def hash_function(item_name):
+    if len(item_name) == 1:
+        return ord(item_name) % 991 + 10
+    
+    first_char_ascii = ord(item_name[0])
+    second_char_ascii = ord(item_name[1]) if len(item_name) > 1 else 0
+    last_char_ascii = ord(item_name[-1])
+    second_last_char_ascii = ord(item_name[-2]) if len(item_name) > 1 else 0
+    
+    ascii_sum = first_char_ascii + second_char_ascii + last_char_ascii + second_last_char_ascii
+    
+    price = ascii_sum % 991 + 10
+    return price
+
+def add_to_price_list(price_list, item_name):
+    price = hash_function(item_name)
+    price_list[item_name] = price
+    save_price_list(price_list)
+
+def remove_from_price_list(price_list, item_name):
+    if item_name in price_list:
+        del price_list[item_name]
+        save_price_list(price_list)
+        print(f"'{item_name}' has been removed from the price list.")
+    else:
+        print(f"'{item_name}' not found in the price list.")
+
+def display_price_list(price_list):
+    print("\nCurrent Price List:")
+    for item in sorted(price_list.keys()):
+        print(f"{item}: {price_list[item]}")
+    print()
+
+def load_price_list(filename):
+    if os.path.exists(filename):
+        with open(filename, 'r') as file:
+            return json.load(file)
+    return {}
+
+def save_price_list(price_list, filename='price_list.json'):
+    with open(filename, 'w') as file:
+        json.dump(price_list, file)
+
+def initialize_price_list():
+    grocery_items = [
+        "Eggs", "Apple", "Banana", "Milk", "Cheese", "Yogurt", "Bread", "Flour", "Sugar", "Salt",
+        "Olive Oil", "Pasta", "Kidney Beans", "Lentils", "Bulgur", "Rice", "Coffee", "Tea", "Honey", "Jam",
+        "Sauce", "Ketchup", "Mayonnaise", "Pepper", "Tomato", "Cucumber", "Carrot", "Potato", "Onion",
+        "Garlic", "Broccoli", "Cauliflower", "Spinach", "Lettuce", "Arugula", "Celery", "Cabbage", "Corn", "Hazelnut",
+        "Walnut", "Dried Apricot", "Dried Grape", "Pine Nut", "Dried Pomegranate", "Ice Cream", "Biscuit", "Chocolate", "Pistachio",
+        "Fruit Juice", "Soda", "Sparkling Water", "Buttermilk", "Lemonade", "Pasta Sauce", "Chicken Sauce", "Chicken Breast", "Red Meat",
+        "Meatballs", "Fish", "Sardines", "Tuna", "Canned Food", "Liquid Soap", "Dish Detergent", "Laundry Detergent", "Personal Care",
+        "Toothpaste", "Shampoo", "Soap", "Body Lotion", "Face Cream", "Perfume", "Towel", "Toilet Paper", "Tissue", "Diaper",
+        "Baby Food", "Cat Food", "Dog Food", "Animal Feed", "Drink", "Olives", "Pepper Paste", "Tomato Paste", "Breakfast Cereal", "Granola",
+        "Muesli", "Iced Tea", "Coconut", "Spices", "Chickpeas", "Soy Sauce", "Cake", "Tortilla", "Pizza", "Sushi",
+        "Sausage", "Cornflakes", "Snack", "Chocolate Chips", "Cake Flour", "Milk Powder", "Cookie Mix", "Cake Ingredients"
+    ]
+    
+    price_list = load_price_list('price_list.json')
+    
+    for item in grocery_items:
+        if item not in price_list:
+            add_to_price_list(price_list, item)
+    
+    return price_list
+
+def main():
+    price_list = initialize_price_list()
+    
+    while True:
+        action = input("Type 'add' to add an item, 'get' to get an item's price, 'remove' to remove an item, 'list' to display the price list, or 'exit' to quit: ").lower()
         
-    def custom_hash(self, item_name):
-        """Custom hash function using polynomial rolling hash"""
-        hash_value = 0
-        for i, char in enumerate(str(item_name)):
-            hash_value += ord(char) * (31 ** i)
-        return hash_value % self.size
-    
-    def insert(self, item_name, price):
-        """Insert an item and its price into the hash table"""
-        index = self.custom_hash(item_name)
-        for i, (existing_item, _) in enumerate(self.table[index]):
-            if existing_item == item_name:
-                self.table[index][i] = (item_name, price)
-                return
-        self.table[index].append((item_name, price))
-    
-    def get_price(self, item_name):
-        """Retrieve price for a given item"""
-        index = self.custom_hash(item_name)
-        for existing_item, price in self.table[index]:
-            if existing_item == item_name:
-                return price
-        return None
-    
-    def display_all(self):
-        """Display all items and their prices"""
-        all_items = []
-        for bucket in self.table:
-            all_items.extend(bucket)
-        return sorted(all_items, key=lambda x: x[0])
+        if action == 'exit':
+            break
+        
+        if action == 'add':
+            item_name = input("Enter the name of an item: ")
+            if item_name not in price_list:
+                add_to_price_list(price_list, item_name)
+                print(f"The price for '{item_name}' has been added.")
+            else:
+                print(f"'{item_name}' is already in the price list.")
 
-import random
-
-def generate_sample_items(num_items=100):
-    categories = ['Electronics', 'Clothing', 'Food', 'Books', 'Home']
-    items = []
-    
-    for i in range(num_items):
-        category = random.choice(categories)
-        item_name = f"{category}_{i+1}"
-        if category == 'Electronics':
-            price = round(random.uniform(100, 2000), 2)
-        elif category == 'Clothing':
-            price = round(random.uniform(20, 200), 2)
-        elif category == 'Food':
-            price = round(random.uniform(2, 50), 2)
-        elif category == 'Books':
-            price = round(random.uniform(10, 100), 2)
-        else:
-            price = round(random.uniform(30, 500), 2)
-        items.append((item_name, price))
-    return items
-
-price_table = PriceHashTable()
-
-sample_items = generate_sample_items(100)
-for item_name, price in sample_items:
-    price_table.insert(item_name, price)
-
-def demonstrate_usage():
-    print("First 10 items in the price list:")
-    all_items = price_table.display_all()
-    for item, price in all_items[:10]:
-        print(f"{item}: ${price:.2f}")
-
-    print("\nLooking up some specific items:")
-    test_items = [all_items[0][0], all_items[50][0], all_items[-1][0]]
-    for item in test_items:
-        price = price_table.get_price(item)
-        print(f"{item}: ${price:.2f}")
-
-    print("\nPrice List Statistics:")
-    prices = [price for _, price in all_items]
-    print(f"Number of items: {len(all_items)}")
-    print(f"Average price: ${sum(prices)/len(prices):.2f}")
-    print(f"Highest price: ${max(prices):.2f}")
-    print(f"Lowest price: ${min(prices):.2f}")
+        elif action == 'get':
+            user_input = input("Type the item name to get its price: ")
+            if user_input in price_list:
+                print(f"The price for '{user_input}' is: {price_list[user_input]}")
+            else:
+                print(f"'{user_input}' not found in the price list.")
+        
+        elif action == 'remove':
+            item_name = input("Enter the name of the item to remove: ")
+            remove_from_price_list(price_list, item_name)
+        
+        elif action == 'list':
+            display_price_list(price_list)
 
 if __name__ == "__main__":
-    demonstrate_usage()
+    main()
