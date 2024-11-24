@@ -1,9 +1,11 @@
 # Hash-Function
-Hash Function Price List
 
-Hash Function Pseudocode
+## Hash Function Price List
 
-Data Storage Functions
+### Hash Function Pseudocode
+
+#### Data Storage Functions
+
 FUNCTION hash_function(item_name)
     IF item_name length is 1 THEN
         RETURN (ASCII value of character) modulo 991 + 10
@@ -14,10 +16,12 @@ FUNCTION hash_function(item_name)
         second_last_ascii = ASCII value of second-last character (or 0 if none)
         sum = first_ascii + second_ascii + last_ascii + second_last_ascii
         RETURN (sum modulo 991 + 10)
+
 FUNCTION save_price_list(price_list, filename)
     OPEN filename in write mode
     WRITE price_list as JSON to file
     CLOSE file
+
 FUNCTION load_price_list(filename)
     IF file exists THEN
         OPEN filename in read mode
@@ -26,12 +30,13 @@ FUNCTION load_price_list(filename)
     ELSE
         RETURN empty dictionary
 
+#### Item Management Functions
 
-Item Management Functions
 FUNCTION add_to_price_list(price_list, item_name)
     price = hash_function(item_name)
     ADD item_name:price to price_list
     save_price_list(price_list)
+
 FUNCTION remove_from_price_list(price_list, item_name)
     IF item_name exists in price_list THEN
         REMOVE item from price_list
@@ -39,10 +44,12 @@ FUNCTION remove_from_price_list(price_list, item_name)
         DISPLAY "Item removed" message
     ELSE
         DISPLAY "Item not found" message
+
 FUNCTION display_price_list(price_list)
     SORT price_list by item names
     FOR each item in sorted price_list:
         DISPLAY item name and price
+
 FUNCTION initialize_price_list()
     CREATE list of predefined grocery items
     load existing price_list from file
@@ -51,8 +58,8 @@ FUNCTION initialize_price_list()
             add_to_price_list(item)
     RETURN price_list
 
+#### Main Program Flow
 
-Main Program Flow
 FUNCTION main()
     price_list = initialize_price_list()
     LOOP forever:
@@ -78,6 +85,8 @@ FUNCTION main()
             remove_from_price_list(item)
         IF action is "list" THEN
             display_price_list(price_list)
-Program Entry Point
+
+#### Program Entry Point
+
 IF program is run directly THEN
     CALL main()
